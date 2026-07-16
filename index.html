@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漢字書き取りクイズ | Kanji Writing Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink: #14120f;
+    --paper: #ece5d3;
+    --paper-dim: #d9d0b8;
+    --seal: #a1372c;
+    --seal-bright: #c14a3a;
+    --gold: #b9924f;
+    --line: rgba(236,229,211,0.14);
+    --ok: #6f8f5a;
+    --bad: var(--seal);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: var(--ink);
+    background-image:
+      radial-gradient(ellipse at 20% -10%, rgba(185,146,79,0.10), transparent 55%),
+      radial-gradient(ellipse at 100% 110%, rgba(161,55,44,0.10), transparent 50%);
+    color: var(--paper);
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+    min-height: 100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 32px 16px;
+  }
+
+  .wrap{ width:100%; max-width: 460px; }
+
+  .eyebrow{
+    display:flex; align-items:center; justify-content:space-between;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    margin-bottom: 14px;
+  }
+  .eyebrow .right{ display:flex; align-items:center; gap:8px; }
+  .eyebrow .stamp{
+    color: var(--seal-bright);
+    border: 1px solid var(--seal-bright);
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight:500;
+  }
+  .manage-toggle{
+    background:none;
+    border: 1px solid rgba(236,229,211,0.25);
+    color: var(--paper-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 4px 9px;
+    border-radius: 2px;
+    cursor:pointer;
+  }
+  .manage-toggle:hover{ border-color: var(--gold); color: var(--paper); }
+
+  h1{
+    font-family:'Shippori Mincho', serif;
+    font-weight:700;
+    font-size: 22px;
+    letter-spacing: 0.02em;
+    margin: 0 0 20px;
+    color: var(--paper);
+  }
+  h1 span{ color: var(--gold); }
+
+  .rank-row{
+    display:flex; align-items:center; gap:8px;
+    margin-bottom: 18px;
+  }
+  .rank-row label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+  }
+  .rank-row select{
+    flex:1;
+    background: rgba(236,229,211,0.05);
+    border: 1px solid rgba(236,229,211,0.25);
+    border-radius: 3px;
+    color: var(--paper);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 7px 9px;
+    outline:none;
+  }
+  .rank-row select:focus{ border-color: var(--gold); }
+
+  /* ---------- QUIZ VIEW ---------- */
+  .genkou{
+    position: relative;
+    background:
+      repeating-linear-gradient(0deg, var(--line) 0 1px, transparent 1px 100%),
+      repeating-linear-gradient(90deg, var(--line) 0 1px, transparent 1px 100%),
+      linear-gradient(180deg, #1a1712, #16140f);
+    border: 1px solid rgba(236,229,211,0.18);
+    border-radius: 4px;
+    aspect-ratio: 1 / 1;
+    max-width: 260px;
+    margin: 0 auto 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,0.6), inset 0 0 0 1px rgba(0,0,0,0.3);
+  }
+  .genkou::before{
+    content:"";
+    position:absolute; inset: 0;
+    border: 1px solid rgba(236,229,211,0.18);
+    margin: auto;
+    width: 33.33%; height: 33.33%;
+  }
+  .peek-btn{
+    position:absolute;
+    top: -12px; right: -12px;
+    width: 30px; height:30px;
+    border-radius: 50%;
+    background: var(--seal);
+    color: var(--paper);
+    border: 1px solid rgba(236,229,211,0.3);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight:600;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: 0 6px 16px -4px rgba(0,0,0,0.6);
+    transition: background 0.15s ease, transform 0.1s ease;
+    z-index: 2;
+  }
+  .peek-btn:hover{ background: var(--seal-bright); }
+  .peek-btn:active{ transform: scale(0.92); }
+  .peek-btn:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .prompt{
+    font-family:'Shippori Mincho', serif;
+    font-weight: 700;
+    font-size: 52px;
+    line-height:1.15;
+    color: var(--paper);
+    user-select: none;
+    text-align:center;
+    padding: 0 14px;
+  }
+  .prompt.enter{ animation: rise 0.35s ease; }
+  @keyframes rise{
+    from{ opacity:0; transform: translateY(8px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+  .peek-label{
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    margin: -12px 0 18px;
+    min-height: 14px;
+  }
+  .peek-label .hint-kanji{
+    color: var(--gold);
+    font-family:'Shippori Mincho', serif;
+    font-size: 13px;
+    letter-spacing: normal;
+    text-transform: none;
+  }
+
+  .progress{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color: var(--paper-dim);
+    margin-bottom: 10px;
+  }
+  .progress .score{ color: var(--gold); }
+  .track{
+    height:2px; background: rgba(236,229,211,0.12); border-radius:2px; margin-bottom:24px; overflow:hidden;
+  }
+  .track > div{ height:100%; background: var(--seal-bright); transition: width 0.25s ease; }
+
+  form{ display:flex; gap: 8px; margin-bottom: 12px; }
+  input[type=text]{
+    flex:1;
+    background: rgba(236,229,211,0.05);
+    border: 1px solid rgba(236,229,211,0.25);
+    border-radius: 3px;
+    color: var(--paper);
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-size: 18px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  input[type=text]::placeholder{ color: rgba(236,229,211,0.35); }
+  input[type=text]:focus{ border-color: var(--gold); background: rgba(236,229,211,0.08); }
+  input[type=text]:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  input.correct{ border-color: var(--ok); }
+  input.wrong{ border-color: var(--bad); }
+
+  button[type=submit]{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    background: var(--seal);
+    color: var(--paper);
+    border: none;
+    border-radius: 3px;
+    padding: 0 20px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+  button[type=submit]:hover{ background: var(--seal-bright); }
+  button[type=submit]:active{ transform: scale(0.97); }
+  button:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .feedback{
+    min-height: 22px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    margin-bottom: 18px;
+  }
+  .feedback.ok{ color: var(--ok); }
+  .feedback.bad{ color: var(--bad); }
+
+  .controls{
+    display:flex; justify-content:space-between; align-items:center;
+    border-top: 1px solid rgba(236,229,211,0.12);
+    padding-top: 14px;
+  }
+  .ghost-btn{
+    background:none;
+    border: 1px solid rgba(236,229,211,0.25);
+    color: var(--paper-dim);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 7px 12px;
+    border-radius: 3px;
+    cursor:pointer;
+  }
+  .ghost-btn:hover{ border-color: var(--gold); color: var(--paper); }
+
+  .done{ text-align:center; padding: 20px 0; }
+  .done .big{ font-family:'Shippori Mincho', serif; font-size: 40px; color: var(--gold); margin-bottom: 6px; }
+  .done .sub{ font-family:'JetBrains Mono', monospace; font-size: 12px; color: var(--paper-dim); margin-bottom: 20px; }
+
+  /* ---------- MANAGE VIEW ---------- */
+  .manage{ display:none; }
+  .manage.active{ display:block; }
+  .quiz-view.hidden{ display:none; }
+
+  .manage-table-wrap{
+    border: 1px solid rgba(236,229,211,0.18);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  table{ width:100%; border-collapse: collapse; }
+  thead th{
+    position: sticky; top:0;
+    background: #1a1712;
+    text-align:left;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    padding: 9px 10px;
+    border-bottom: 1px solid rgba(236,229,211,0.18);
+  }
+  tbody td{
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(236,229,211,0.08);
+    font-size: 15px;
+  }
+  tbody tr:last-child td{ border-bottom:none; }
+  td.actions{ text-align:right; width: 36px; }
+  .cell-input{
+    width:100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    color: var(--paper);
+    font-family: inherit;
+    font-size: 15px;
+    padding: 5px 6px;
+  }
+  .cell-input:focus{ background: rgba(236,229,211,0.06); border-color: var(--gold); outline:none; }
+  .row-delete{
+    background:none; border:none; color: var(--paper-dim);
+    cursor:pointer; font-size: 15px; line-height:1; padding: 4px 6px;
+  }
+  .row-delete:hover{ color: var(--seal-bright); }
+
+  .add-row{
+    display:flex; gap:8px; margin-bottom: 14px;
+  }
+  .add-row input{
+    flex:1;
+    background: rgba(236,229,211,0.05);
+    border: 1px solid rgba(236,229,211,0.25);
+    border-radius: 3px;
+    color: var(--paper);
+    font-family: inherit;
+    font-size: 15px;
+    padding: 9px 10px;
+    outline:none;
+  }
+  .add-row input:focus{ border-color: var(--gold); }
+  .add-row button{
+    background: var(--seal);
+    color: var(--paper);
+    border:none;
+    border-radius: 3px;
+    padding: 0 16px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor:pointer;
+  }
+  .add-row button:hover{ background: var(--seal-bright); }
+
+  .upload-row{
+    display:flex; align-items:center; gap:10px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .upload-hint{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+  }
+
+  .manage-footer{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
+  .manage-note{ font-size: 10px; color: var(--paper-dim); margin: 0 0 14px; line-height:1.5; }
+
+  @media (prefers-reduced-motion: reduce){
+    .prompt.enter{ animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="eyebrow">
+    <span>漢字 WRITING DRILL</span>
+    <div class="right">
+      <span class="stamp" id="streak">streak 0</span>
+      <button type="button" class="manage-toggle" id="manageToggle">単語管理</button>
+    </div>
+  </div>
+
+  <!-- QUIZ VIEW -->
+  <div class="quiz-view" id="quizView">
+    <h1>この漢字、<span>書いてみよう</span></h1>
+
+    <div class="rank-row">
+      <label for="rankSelect">rank</label>
+      <select id="rankSelect"><option value="all">All ranks</option></select>
+    </div>
+
+    <div class="genkou">
+      <button type="button" class="peek-btn" id="peekBtn" title="ひらがなをのぞく">?</button>
+      <div class="prompt" id="promptDisplay">かんじ</div>
+    </div>
+    <div class="peek-label" id="peekLabel">tap ? for a kanji hint</div>
+
+    <div class="progress">
+      <span id="progressLabel">0 / 0</span>
+      <span class="score" id="scoreLabel">0 correct</span>
+    </div>
+    <div class="track"><div id="progressBar" style="width:0%"></div></div>
+
+    <form id="quizForm" autocomplete="off">
+      <input type="text" id="answerInput" placeholder="漢字で入力" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button type="submit">確認</button>
+    </form>
+    <div class="feedback" id="feedback"></div>
+
+    <div class="controls">
+      <button type="button" class="ghost-btn" id="shuffleBtn">↻ shuffle &amp; restart</button>
+      <button type="button" class="ghost-btn" id="skipBtn">skip →</button>
+    </div>
+  </div>
+
+  <!-- MANAGE VIEW -->
+  <div class="manage" id="manageView">
+    <h1>単語<span>リスト</span>管理</h1>
+    <p class="manage-note">Edit kanji / hiragana / rank directly in the table. Changes save automatically to this browser. Leave rank blank if you don't need it — the rank picker on the quiz screen only shows up once at least one word has a rank set.</p>
+
+    <div class="add-row">
+      <input type="text" id="newKanji" placeholder="漢字 (e.g. 水)">
+      <input type="text" id="newHiragana" placeholder="ひらがな (e.g. みず)">
+      <input type="text" id="newRank" placeholder="ランク (optional, e.g. N5)">
+      <button type="button" id="addWordBtn">+ 追加</button>
+    </div>
+
+    <div class="upload-row">
+      <button type="button" class="ghost-btn" id="uploadBtn">⇪ CSV / Excelをアップロード</button>
+      <input type="file" id="fileUpload" accept=".csv,.xlsx,.xls" style="display:none">
+      <button type="button" class="ghost-btn" id="reloadBaseBtn">⟳ reload repo CSV</button>
+      <span class="upload-hint">columns: 漢字, ひらがな, ランク (rank optional, header row fine)</span>
+    </div>
+
+    <div class="manage-table-wrap">
+      <table>
+        <thead>
+          <tr><th>漢字</th><th>ひらがな</th><th>ランク</th><th></th></tr>
+        </thead>
+        <tbody id="wordTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="manage-footer">
+      <span id="wordCount">0 words</span>
+      <button type="button" class="ghost-btn" id="resetWordsBtn">reset to default list</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ------------------------------------------------------------------
+  // DEFAULT WORD LIST (used the first time you open the page, or after
+  // "reset to default list"). Once you edit words in the 単語管理 panel,
+  // your list is saved to this browser's localStorage automatically.
+  // ------------------------------------------------------------------
+  const DEFAULT_WORDS = [
+    { kanji: "水", hiragana: "みず", rank: "N5" },
+    { kanji: "火", hiragana: "ひ", rank: "N5" },
+    { kanji: "山", hiragana: "やま", rank: "N5" },
+    { kanji: "川", hiragana: "かわ", rank: "N5" },
+    { kanji: "空", hiragana: "そら", rank: "N5" },
+    { kanji: "雨", hiragana: "あめ", rank: "N5" },
+    { kanji: "花", hiragana: "はな", rank: "N5" },
+    { kanji: "犬", hiragana: "いぬ", rank: "N5" },
+    { kanji: "猫", hiragana: "ねこ", rank: "N5" },
+    { kanji: "食べる", hiragana: "たべる", rank: "N5" },
+    { kanji: "飲む", hiragana: "のむ", rank: "N5" },
+    { kanji: "学校", hiragana: "がっこう", rank: "N4" },
+    { kanji: "時間", hiragana: "じかん", rank: "N4" },
+    { kanji: "友達", hiragana: "ともだち", rank: "N4" },
+    { kanji: "仕事", hiragana: "しごと", rank: "N4" },
+  ];
+
+  // Set this to your CSV's filename/path relative to this HTML file once
+  // it's hosted on GitHub Pages (e.g. 'words.csv' or 'data/words.csv').
+  const BASE_CSV_URL = 'words.csv';
+
+  const STORAGE_KEY = 'kanjiQuizWords';
+
+  let words = [];
+  let deck = [];
+  let index = 0;
+  let correctCount = 0;
+  let streak = 0;
+  let currentRankFilter = 'all';
+
+  const kanjiPromptEl = document.getElementById('promptDisplay');
+  const rankSelect = document.getElementById('rankSelect');
+  const peekBtn = document.getElementById('peekBtn');
+  const peekLabelEl = document.getElementById('peekLabel');
+  const inputEl = document.getElementById('answerInput');
+  const formEl = document.getElementById('quizForm');
+  const feedbackEl = document.getElementById('feedback');
+  const progressLabel = document.getElementById('progressLabel');
+  const scoreLabel = document.getElementById('scoreLabel');
+  const progressBar = document.getElementById('progressBar');
+  const streakEl = document.getElementById('streak');
+  const wrap = document.querySelector('.wrap');
+  const quizView = document.getElementById('quizView');
+  const manageView = document.getElementById('manageView');
+  const manageToggle = document.getElementById('manageToggle');
+  const wordTableBody = document.getElementById('wordTableBody');
+  const wordCountEl = document.getElementById('wordCount');
+  const newKanjiInput = document.getElementById('newKanji');
+  const newHiraganaInput = document.getElementById('newHiragana');
+  const newRankInput = document.getElementById('newRank');
+
+  // ---------- persistence ----------
+  function loadWords(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed) && parsed.length){
+          return parsed;
+        }
+      }
+    }catch(e){ /* fall through to defaults */ }
+    return DEFAULT_WORDS.slice();
+  }
+
+  function saveWords(){
+    try{
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+    }catch(e){ /* storage unavailable, ignore */ }
+  }
+
+  // ---------- shuffle ----------
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ---------- rank filter ----------
+  function getRanks(){
+    const set = new Set();
+    words.forEach(w => { if(w.rank) set.add(w.rank); });
+    return Array.from(set).sort();
+  }
+
+  function populateRankSelect(){
+    const ranks = getRanks();
+    const prev = rankSelect.value || currentRankFilter;
+    rankSelect.innerHTML = '<option value="all">All ranks</option>' +
+      ranks.map(r => `<option value="${r}">${r}</option>`).join('');
+    rankSelect.value = ranks.includes(prev) ? prev : 'all';
+    currentRankFilter = rankSelect.value;
+  }
+
+  function getFilteredWords(){
+    if(currentRankFilter === 'all') return words;
+    return words.filter(w => (w.rank || '') === currentRankFilter);
+  }
+
+  rankSelect.addEventListener('change', function(){
+    currentRankFilter = rankSelect.value;
+    startDeck();
+  });
+
+  // ---------- quiz logic ----------
+  function startDeck(){
+    const pool = getFilteredWords();
+    if(pool.length === 0){
+      deck = [];
+      kanjiPromptEl.textContent = words.length === 0 ? '単語なし' : '該当なし';
+      feedbackEl.className = 'feedback bad';
+      feedbackEl.textContent = words.length === 0
+        ? 'Add words in 単語管理 first.'
+        : 'No words in this rank yet.';
+      formEl.style.display = 'none';
+      document.getElementById('skipBtn').style.display = 'none';
+      progressLabel.textContent = '0 / 0';
+      scoreLabel.textContent = '0 correct';
+      progressBar.style.width = '0%';
+      return;
+    }
+    deck = shuffle(pool);
+    index = 0;
+    correctCount = 0;
+    streak = 0;
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback';
+    streakEl.textContent = 'streak 0';
+    formEl.style.display = 'flex';
+    document.getElementById('skipBtn').style.display = 'inline-block';
+    clearDoneBlock();
+    renderCard();
+  }
+
+  function renderCard(){
+    if(index >= deck.length){
+      renderDone();
+      return;
+    }
+    const word = deck[index];
+    kanjiPromptEl.textContent = word.kanji;
+    kanjiPromptEl.classList.remove('enter');
+    void kanjiPromptEl.offsetWidth;
+    kanjiPromptEl.classList.add('enter');
+    autoSizePrompt(word.kanji);
+    peekLabelEl.innerHTML = 'tap ? for a hiragana clue';
+    inputEl.value = '';
+    inputEl.classList.remove('correct', 'wrong');
+    progressLabel.textContent = `${index + 1} / ${deck.length}`;
+    scoreLabel.textContent = `${correctCount} correct`;
+    progressBar.style.width = `${(index / deck.length) * 100}%`;
+    formEl.style.display = 'flex';
+    inputEl.focus();
+  }
+
+  function autoSizePrompt(text){
+    // shrink font a bit for longer hiragana strings so they fit the card
+    let size = 52;
+    if(text.length > 3) size = 42;
+    if(text.length > 5) size = 34;
+    if(text.length > 7) size = 27;
+    kanjiPromptEl.style.fontSize = size + 'px';
+  }
+
+  function renderDone(){
+    formEl.style.display = 'none';
+    document.getElementById('skipBtn').style.display = 'none';
+    progressBar.style.width = '100%';
+    progressLabel.textContent = `${deck.length} / ${deck.length}`;
+    scoreLabel.textContent = `${correctCount} correct`;
+    feedbackEl.className = 'feedback';
+    feedbackEl.innerHTML = '';
+    const doneBlock = document.createElement('div');
+    doneBlock.className = 'done';
+    doneBlock.innerHTML = `
+      <div class="big">${correctCount} / ${deck.length}</div>
+      <div class="sub">FINISHED — press shuffle to try again</div>
+    `;
+    kanjiPromptEl.textContent = '終';
+    kanjiPromptEl.style.fontSize = '52px';
+    peekLabelEl.textContent = '';
+    wrap.querySelector('.genkou').after(doneBlock);
+  }
+
+  function clearDoneBlock(){
+    const el = document.querySelector('.done');
+    if(el) el.remove();
+  }
+
+  formEl.addEventListener('submit', function(e){
+    e.preventDefault();
+    if(isComposing) return;
+    if(index >= deck.length) return;
+    const word = deck[index];
+    const userAnswer = inputEl.value.trim();
+    if(!userAnswer) return;
+
+    if(userAnswer === word.kanji){
+      correctCount++;
+      streak++;
+      streakEl.textContent = `streak ${streak}`;
+      inputEl.classList.add('correct');
+      feedbackEl.className = 'feedback ok';
+      feedbackEl.textContent = `正解 — ${word.hiragana} は「${word.kanji}」`;
+      setTimeout(() => { index++; renderCard(); }, 550);
+    } else {
+      streak = 0;
+      streakEl.textContent = 'streak 0';
+      inputEl.classList.add('wrong');
+      feedbackEl.className = 'feedback bad';
+      feedbackEl.textContent = `不正解 — 正解は「${word.kanji}」`;
+      setTimeout(() => { index++; renderCard(); }, 1300);
+    }
+  });
+
+  peekBtn.addEventListener('click', function(){
+    if(index >= deck.length) return;
+    const word = deck[index];
+    peekLabelEl.innerHTML = `ヒント: <span class="hint-kanji">${word.hiragana}</span>`;
+  });
+
+  let isComposing = false;
+  inputEl.addEventListener('compositionstart', () => { isComposing = true; });
+  inputEl.addEventListener('compositionend', () => { isComposing = false; });
+  inputEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' && (e.isComposing || e.keyCode === 229)){
+      e.preventDefault();
+    }
+  });
+
+  document.getElementById('skipBtn').addEventListener('click', function(){
+    if(index >= deck.length) return;
+    streak = 0;
+    streakEl.textContent = 'streak 0';
+    feedbackEl.className = 'feedback';
+    feedbackEl.textContent = '';
+    index++;
+    renderCard();
+  });
+
+  document.getElementById('shuffleBtn').addEventListener('click', function(){
+    startDeck();
+  });
+
+  // ---------- manage view ----------
+  function renderTable(){
+    wordTableBody.innerHTML = '';
+    words.forEach((word, i) => {
+      const tr = document.createElement('tr');
+
+      const kanjiTd = document.createElement('td');
+      const kanjiInput = document.createElement('input');
+      kanjiInput.className = 'cell-input';
+      kanjiInput.value = word.kanji;
+      kanjiInput.addEventListener('change', () => {
+        words[i].kanji = kanjiInput.value.trim();
+        saveWords();
+      });
+      kanjiTd.appendChild(kanjiInput);
+
+      const hiraganaTd = document.createElement('td');
+      const hiraganaInput = document.createElement('input');
+      hiraganaInput.className = 'cell-input';
+      hiraganaInput.value = word.hiragana;
+      hiraganaInput.addEventListener('change', () => {
+        words[i].hiragana = hiraganaInput.value.trim();
+        saveWords();
+      });
+      hiraganaTd.appendChild(hiraganaInput);
+
+      const rankTd = document.createElement('td');
+      const rankInput = document.createElement('input');
+      rankInput.className = 'cell-input';
+      rankInput.value = word.rank || '';
+      rankInput.placeholder = '—';
+      rankInput.addEventListener('change', () => {
+        words[i].rank = rankInput.value.trim();
+        saveWords();
+        populateRankSelect();
+      });
+      rankTd.appendChild(rankInput);
+
+      const actionTd = document.createElement('td');
+      actionTd.className = 'actions';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'row-delete';
+      delBtn.textContent = '×';
+      delBtn.title = 'delete word';
+      delBtn.addEventListener('click', () => {
+        words.splice(i, 1);
+        saveWords();
+        renderTable();
+        populateRankSelect();
+      });
+      actionTd.appendChild(delBtn);
+
+      tr.appendChild(kanjiTd);
+      tr.appendChild(hiraganaTd);
+      tr.appendChild(rankTd);
+      tr.appendChild(actionTd);
+      wordTableBody.appendChild(tr);
+    });
+    wordCountEl.textContent = `${words.length} word${words.length === 1 ? '' : 's'}`;
+  }
+
+  document.getElementById('addWordBtn').addEventListener('click', function(){
+    const k = newKanjiInput.value.trim();
+    const h = newHiraganaInput.value.trim();
+    const r = newRankInput.value.trim();
+    if(!k || !h) return;
+    words.push({ kanji: k, hiragana: h, rank: r });
+    saveWords();
+    renderTable();
+    populateRankSelect();
+    newKanjiInput.value = '';
+    newHiraganaInput.value = '';
+    newRankInput.value = '';
+    newKanjiInput.focus();
+  });
+
+  [newKanjiInput, newHiraganaInput, newRankInput].forEach(el => {
+    el.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        document.getElementById('addWordBtn').click();
+      }
+    });
+  });
+
+  document.getElementById('resetWordsBtn').addEventListener('click', function(){
+    words = DEFAULT_WORDS.slice();
+    saveWords();
+    renderTable();
+    populateRankSelect();
+  });
+
+  // ---------- CSV / Excel import ----------
+  function splitCSVLine(line){
+    const result = [];
+    let cur = '';
+    let inQuotes = false;
+    for(let i = 0; i < line.length; i++){
+      const ch = line[i];
+      if(ch === '"'){
+        if(inQuotes && line[i + 1] === '"'){ cur += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if(ch === ',' && !inQuotes){
+        result.push(cur); cur = '';
+      } else {
+        cur += ch;
+      }
+    }
+    result.push(cur);
+    return result;
+  }
+
+  function parseCSVText(text){
+    return text.split(/\r\n|\n|\r/).filter(l => l.trim().length).map(splitCSVLine);
+  }
+
+  function rowsToWords(rows){
+    if(!rows.length) return [];
+    let kanjiIdx = 0, hiraganaIdx = 1, rankIdx = -1;
+    const header = rows[0].map(c => String(c).trim().toLowerCase());
+    const looksLikeHeader = header.some(h => h.includes('kanji') || h.includes('漢字') || h.includes('hiragana') || h.includes('ひらがな') || h.includes('rank') || h.includes('ランク'));
+    let dataRows = rows;
+    if(looksLikeHeader){
+      const kIdx = header.findIndex(h => h.includes('kanji') || h.includes('漢字'));
+      const hIdx = header.findIndex(h => h.includes('hiragana') || h.includes('ひらがな'));
+      const rIdx = header.findIndex(h => h.includes('rank') || h.includes('ランク'));
+      if(kIdx > -1) kanjiIdx = kIdx;
+      if(hIdx > -1) hiraganaIdx = hIdx;
+      if(rIdx > -1) rankIdx = rIdx;
+      dataRows = rows.slice(1);
+    } else if(rows[0] && rows[0].length >= 3){
+      rankIdx = 2; // no header: assume column order kanji, hiragana, rank
+    }
+    return dataRows
+      .map(r => ({
+        kanji: String(r[kanjiIdx] || '').trim(),
+        hiragana: String(r[hiraganaIdx] || '').trim(),
+        rank: rankIdx > -1 ? String(r[rankIdx] || '').trim() : ''
+      }))
+      .filter(w => w.kanji && w.hiragana);
+  }
+
+  function handleImportedWords(importedWords){
+    if(importedWords.length === 0){
+      alert('No valid rows found. Make sure the file has columns for 漢字 and ひらがな (ランク is optional).');
+      return;
+    }
+    const replace = confirm(`Found ${importedWords.length} word(s).\n\nOK = replace your current list\nCancel = add to your current list`);
+    words = replace ? importedWords : words.concat(importedWords);
+    saveWords();
+    renderTable();
+    populateRankSelect();
+  }
+
+  const uploadBtn = document.getElementById('uploadBtn');
+  const fileUpload = document.getElementById('fileUpload');
+  const reloadBaseBtn = document.getElementById('reloadBaseBtn');
+
+  uploadBtn.addEventListener('click', () => fileUpload.click());
+
+  async function tryLoadBaseCSV(){
+    try{
+      const res = await fetch(BASE_CSV_URL, { cache: 'no-store' });
+      if(!res.ok) return null;
+      const text = await res.text();
+      const parsed = rowsToWords(parseCSVText(text));
+      return parsed.length ? parsed : null;
+    }catch(e){
+      return null;
+    }
+  }
+
+  reloadBaseBtn.addEventListener('click', async function(){
+    reloadBaseBtn.disabled = true;
+    reloadBaseBtn.textContent = '読み込み中…';
+    const baseWords = await tryLoadBaseCSV();
+    reloadBaseBtn.disabled = false;
+    reloadBaseBtn.textContent = '⟳ reload repo CSV';
+    if(!baseWords){
+      alert(`Could not load "${BASE_CSV_URL}". Make sure that file exists next to this page in your repo, and that you're viewing this page through GitHub Pages (fetch doesn't work when opening the file directly from your computer).`);
+      return;
+    }
+    handleImportedWords(baseWords);
+  });
+
+  fileUpload.addEventListener('change', function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if(ext === 'csv'){
+      const reader = new FileReader();
+      reader.onload = (ev) => handleImportedWords(rowsToWords(parseCSVText(ev.target.result)));
+      reader.onerror = () => alert('Could not read that file.');
+      reader.readAsText(file, 'UTF-8');
+    } else if(ext === 'xlsx' || ext === 'xls'){
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try{
+          const data = new Uint8Array(ev.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+          handleImportedWords(rowsToWords(rows));
+        }catch(err){
+          alert('Could not parse that Excel file.');
+        }
+      };
+      reader.onerror = () => alert('Could not read that file.');
+      reader.readAsArrayBuffer(file);
+    } else {
+      alert('Please upload a .csv, .xlsx, or .xls file.');
+    }
+    fileUpload.value = '';
+  });
+
+  manageToggle.addEventListener('click', function(){
+    const goingToManage = !manageView.classList.contains('active');
+    if(goingToManage){
+      quizView.classList.add('hidden');
+      manageView.classList.add('active');
+      manageToggle.textContent = '← クイズに戻る';
+      renderTable();
+    } else {
+      quizView.classList.remove('hidden');
+      manageView.classList.remove('active');
+      manageToggle.textContent = '単語管理';
+      startDeck();
+    }
+  });
+
+  // ---------- init ----------
+  function hasSavedWords(){
+    try{ return !!localStorage.getItem(STORAGE_KEY); }catch(e){ return false; }
+  }
+
+  async function init(){
+    if(hasSavedWords()){
+      words = loadWords();
+    } else {
+      const baseWords = await tryLoadBaseCSV();
+      words = baseWords || DEFAULT_WORDS.slice();
+    }
+    populateRankSelect();
+    startDeck();
+  }
+
+  init();
+</script>
+
+</body>
+</html>
