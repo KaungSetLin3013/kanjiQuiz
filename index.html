@@ -256,7 +256,50 @@
 
   .done{ text-align:center; padding: 20px 0; }
   .done .big{ font-family:'Shippori Mincho', serif; font-size: 40px; color: var(--gold); margin-bottom: 6px; }
-  .done .sub{ font-family:'JetBrains Mono', monospace; font-size: 12px; color: var(--paper-dim); margin-bottom: 20px; }
+  .done .sub{ font-family:'JetBrains Mono', monospace; font-size: 11px; color: var(--paper-dim); margin-bottom: 18px; line-height:1.5; }
+  .review-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--paper-dim);
+    text-align:left;
+    margin-bottom: 8px;
+  }
+  .review-list{
+    list-style:none;
+    margin:0; padding:0;
+    text-align:left;
+    border: 1px solid rgba(236,229,211,0.15);
+    border-radius: 4px;
+    overflow:hidden;
+  }
+  .review-list li{
+    display:flex; justify-content:space-between; align-items:baseline;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(236,229,211,0.08);
+    font-size: 13px;
+  }
+  .review-list li:last-child{ border-bottom:none; }
+  .review-word{
+    font-family:'Shippori Mincho', serif;
+    font-weight: 700;
+    color: var(--paper);
+  }
+  .review-reading{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--paper-dim);
+    margin-left: 4px;
+  }
+  .review-counts{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--seal-bright);
+    white-space: nowrap;
+    margin-left: 10px;
+  }
 
   /* ---------- MANAGE VIEW ---------- */
   .manage{ display:none; }
@@ -467,11 +510,12 @@
   const STORAGE_KEY = 'kanjiQuizWords';
 
   let words = [];
-  let deck = [];
-  let index = 0;
+  let queue = [];
+  let sessionTotal = 0;
   let correctCount = 0;
   let streak = 0;
   let currentRankFilter = 'all';
+  let stats = {}; // key -> { kanji, hiragana, wrongCount, hintCount }
 
   const kanjiPromptEl = document.getElementById('promptDisplay');
   const rankSelect = document.getElementById('rankSelect');
@@ -550,11 +594,13 @@
     startDeck();
   });
 
+  function wordKey(w){ return w.kanji + '|' + w.hiragana; }
+
   // ---------- quiz logic ----------
   function startDeck(){
     const pool = getFilteredWords();
     if(pool.length === 0){
-      deck = [];
+      queue = [];
       kanjiPromptEl.textContent = words.length === 0 ? '単語なし' : '該当なし';
       feedbackEl.className = 'feedback bad';
       feedbackEl.textContent = words.length === 0
@@ -567,8 +613,11 @@
       progressBar.style.width = '0%';
       return;
     }
-    deck = shuffle(pool);
-    index = 0;
+    // clone so per-session retry flags don't touch the master word list
+    queue = shuffle(pool).map(w => ({ kanji: w.kanji, hiragana: w.hiragana, rank: w.rank, needsRetry: false }));
+    sessionTotal = queue.length;
+    stats = {};
+    pool.forEach(w => { stats[wordKey(w)] = { kanji: w.kanji, hiragana: w.hiragana, wrongCount: 0, hintCount: 0 }; });
     correctCount = 0;
     streak = 0;
     feedbackEl.textContent = '';
@@ -581,11 +630,11 @@
   }
 
   function renderCard(){
-    if(index >= deck.length){
+    if(queue.length === 0){
       renderDone();
       return;
     }
-    const word = deck[index];
+    const word = queue[0];
     kanjiPromptEl.textContent = word.kanji;
     kanjiPromptEl.classList.remove('enter');
     void kanjiPromptEl.offsetWidth;
@@ -594,9 +643,10 @@
     peekLabelEl.innerHTML = 'tap ? for a hiragana clue';
     inputEl.value = '';
     inputEl.classList.remove('correct', 'wrong');
-    progressLabel.textContent = `${index + 1} / ${deck.length}`;
+    const cleared = sessionTotal - queue.length;
+    progressLabel.textContent = `${cleared} / ${sessionTotal}`;
     scoreLabel.textContent = `${correctCount} correct`;
-    progressBar.style.width = `${(index / deck.length) * 100}%`;
+    progressBar.style.width = `${(cleared / sessionTotal) * 100}%`;
     formEl.style.display = 'flex';
     inputEl.focus();
   }
@@ -614,15 +664,38 @@
     formEl.style.display = 'none';
     document.getElementById('skipBtn').style.display = 'none';
     progressBar.style.width = '100%';
-    progressLabel.textContent = `${deck.length} / ${deck.length}`;
+    progressLabel.textContent = `${sessionTotal} / ${sessionTotal}`;
     scoreLabel.textContent = `${correctCount} correct`;
     feedbackEl.className = 'feedback';
     feedbackEl.innerHTML = '';
+
+    const corrections = Object.values(stats)
+      .filter(s => s.wrongCount > 0 || s.hintCount > 0)
+      .sort((a, b) => (b.wrongCount + b.hintCount) - (a.wrongCount + a.hintCount));
+    const perfectCount = sessionTotal - corrections.length;
+
     const doneBlock = document.createElement('div');
     doneBlock.className = 'done';
+    let listHtml = '';
+    if(corrections.length){
+      listHtml = `
+        <div class="review-title">needed corrections</div>
+        <ul class="review-list">
+          ${corrections.map(s => `
+            <li>
+              <span class="review-word">${s.kanji}<span class="review-reading">（${s.hiragana}）</span></span>
+              <span class="review-counts">
+                ${s.wrongCount ? `${s.wrongCount}回間違い` : ''}${s.wrongCount && s.hintCount ? ' / ' : ''}${s.hintCount ? `hint ×${s.hintCount}` : ''}
+              </span>
+            </li>`).join('')}
+        </ul>`;
+    } else {
+      listHtml = `<div class="review-title">全問ノーミス — perfect run!</div>`;
+    }
     doneBlock.innerHTML = `
-      <div class="big">${correctCount} / ${deck.length}</div>
-      <div class="sub">FINISHED — press shuffle to try again</div>
+      <div class="big">${correctCount} / ${sessionTotal}</div>
+      <div class="sub">FINISHED — ${perfectCount}/${sessionTotal} words answered clean, no hint, first try</div>
+      ${listHtml}
     `;
     kanjiPromptEl.textContent = '終';
     kanjiPromptEl.style.fontSize = '52px';
@@ -638,32 +711,55 @@
   formEl.addEventListener('submit', function(e){
     e.preventDefault();
     if(isComposing) return;
-    if(index >= deck.length) return;
-    const word = deck[index];
+    if(queue.length === 0) return;
+    const word = queue[0];
+    const key = wordKey(word);
     const userAnswer = inputEl.value.trim();
     if(!userAnswer) return;
 
     if(userAnswer === word.kanji){
-      correctCount++;
-      streak++;
-      streakEl.textContent = `streak ${streak}`;
-      inputEl.classList.add('correct');
-      feedbackEl.className = 'feedback ok';
-      feedbackEl.textContent = `正解 — ${word.hiragana} は「${word.kanji}」`;
-      setTimeout(() => { index++; renderCard(); }, 550);
+      if(word.needsRetry){
+        // got it right, but they needed a hint or missed it earlier this
+        // round — keep it in rotation for one more clean pass
+        word.needsRetry = false;
+        queue.shift();
+        const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
+        queue.splice(insertAt, 0, word);
+        inputEl.classList.add('correct');
+        feedbackEl.className = 'feedback ok';
+        feedbackEl.textContent = `正解 — もう一度、ノーヒントで確認します`;
+        setTimeout(() => { renderCard(); }, 650);
+      } else {
+        correctCount++;
+        streak++;
+        streakEl.textContent = `streak ${streak}`;
+        inputEl.classList.add('correct');
+        feedbackEl.className = 'feedback ok';
+        feedbackEl.textContent = `正解 — ${word.hiragana} は「${word.kanji}」`;
+        queue.shift();
+        setTimeout(() => { renderCard(); }, 550);
+      }
     } else {
       streak = 0;
       streakEl.textContent = 'streak 0';
+      stats[key].wrongCount++;
+      word.needsRetry = true;
       inputEl.classList.add('wrong');
       feedbackEl.className = 'feedback bad';
-      feedbackEl.textContent = `不正解 — 正解は「${word.kanji}」`;
-      setTimeout(() => { index++; renderCard(); }, 1300);
+      feedbackEl.textContent = `不正解 — 正解は「${word.kanji}」（もう一度出題します）`;
+      queue.shift();
+      const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
+      queue.splice(insertAt, 0, word);
+      setTimeout(() => { renderCard(); }, 1300);
     }
   });
 
   peekBtn.addEventListener('click', function(){
-    if(index >= deck.length) return;
-    const word = deck[index];
+    if(queue.length === 0) return;
+    const word = queue[0];
+    const key = wordKey(word);
+    word.needsRetry = true;
+    stats[key].hintCount++;
     peekLabelEl.innerHTML = `ヒント: <span class="hint-kanji">${word.hiragana}</span>`;
   });
 
@@ -677,12 +773,16 @@
   });
 
   document.getElementById('skipBtn').addEventListener('click', function(){
-    if(index >= deck.length) return;
+    if(queue.length === 0) return;
+    const word = queue[0];
+    word.needsRetry = true;
     streak = 0;
     streakEl.textContent = 'streak 0';
     feedbackEl.className = 'feedback';
     feedbackEl.textContent = '';
-    index++;
+    queue.shift();
+    const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
+    queue.splice(insertAt, 0, word);
     renderCard();
   });
 
