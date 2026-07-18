@@ -15,6 +15,7 @@
     --seal: #a1372c;
     --seal-bright: #c14a3a;
     --gold: #b9924f;
+    --gold-bright: #d4ac68;
     --line: rgba(236,229,211,0.14);
     --ok: #6f8f5a;
     --bad: var(--seal);
@@ -46,7 +47,7 @@
     color: var(--paper-dim);
     margin-bottom: 14px;
   }
-  .eyebrow .right{ display:flex; align-items:center; gap:8px; }
+  .eyebrow .right{ display:flex; align-items:center; gap:10px; }
   .eyebrow .stamp{
     color: var(--seal-bright);
     border: 1px solid var(--seal-bright);
@@ -54,41 +55,54 @@
     border-radius: 2px;
     font-weight:500;
   }
-  .manage-toggle{
-    background:none;
+  .reload-btn{
+    width: 26px; height: 26px;
+    display:flex; align-items:center; justify-content:center;
+    background: none;
     border: 1px solid rgba(236,229,211,0.25);
+    border-radius: 50%;
     color: var(--paper-dim);
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    padding: 4px 9px;
-    border-radius: 2px;
+    font-size: 14px;
+    line-height:1;
     cursor:pointer;
+    transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
   }
-  .manage-toggle:hover{ border-color: var(--gold); color: var(--paper); }
+  .reload-btn:hover{ border-color: var(--gold); color: var(--paper); }
+  .reload-btn:active{ transform: scale(0.9); }
+  .reload-btn.spinning{ animation: spin 0.8s linear infinite; border-color: var(--gold); color: var(--gold); }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
 
   h1{
     font-family:'Shippori Mincho', serif;
     font-weight:700;
     font-size: 22px;
     letter-spacing: 0.02em;
-    margin: 0 0 20px;
+    margin: 0 0 18px;
     color: var(--paper);
   }
   h1 span{ color: var(--gold); }
 
-  .rank-row{
-    display:flex; align-items:center; gap:8px;
-    margin-bottom: 18px;
+  /* ---------- START SCREEN ---------- */
+  .start-screen{
+    border: 1px solid rgba(236,229,211,0.15);
+    border-radius: 6px;
+    padding: 18px;
+    background: rgba(236,229,211,0.02);
   }
-  .rank-row label{
+  .field-row{
+    display:flex; align-items:center; gap:8px;
+    margin-bottom: 12px;
+  }
+  .field-row label{
     font-family:'JetBrains Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--paper-dim);
+    width: 46px;
+    flex-shrink: 0;
   }
-  .rank-row select{
+  .field-row select{
     flex:1;
     background: rgba(236,229,211,0.05);
     border: 1px solid rgba(236,229,211,0.25);
@@ -96,12 +110,88 @@
     color: var(--paper);
     font-family:'JetBrains Mono', monospace;
     font-size: 12px;
-    padding: 7px 9px;
+    padding: 8px 9px;
     outline:none;
   }
-  .rank-row select:focus{ border-color: var(--gold); }
+  .field-row select:focus{ border-color: var(--gold); }
+  .mode-cards{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    margin-bottom: 14px;
+  }
+  .mode-card{
+    background: rgba(236,229,211,0.04);
+    border: 1px solid rgba(236,229,211,0.18);
+    border-radius: 5px;
+    padding: 10px 6px;
+    text-align:center;
+    cursor:pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .mode-card:hover{ border-color: rgba(236,229,211,0.35); }
+  .mode-card.active{
+    border-color: var(--gold);
+    background: rgba(185,146,79,0.12);
+  }
+  .mode-card .icon{ font-size: 18px; margin-bottom: 4px; }
+  .mode-card .label{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.03em;
+    color: var(--paper);
+  }
+  .setup-note{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--paper-dim);
+    line-height:1.6;
+    margin: 0 0 16px;
+    min-height: 32px;
+  }
+  .start-btn{
+    width:100%;
+    background: linear-gradient(135deg, var(--seal-bright), var(--seal));
+    color: var(--paper);
+    border: none;
+    border-radius: 4px;
+    padding: 13px 0;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 10px 24px -10px rgba(161,55,44,0.6);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .start-btn:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px -8px rgba(161,55,44,0.7); }
+  .start-btn:active{ transform: translateY(0); }
 
-  /* ---------- QUIZ VIEW ---------- */
+  /* ---------- QUIZ PLAY AREA ---------- */
+  .timer-row{
+    display:flex; align-items:center; gap:10px;
+    margin-bottom: 14px;
+  }
+  #clockDisplay{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    min-width: 46px;
+  }
+  #clockDisplay.low{ color: var(--seal-bright); }
+  .timer-track{
+    flex:1; height:4px;
+    background: rgba(236,229,211,0.12);
+    border-radius: 2px;
+    overflow:hidden;
+  }
+  .timer-track > div{
+    height:100%;
+    background: var(--gold);
+    transition: width 1s linear, background 0.3s ease;
+  }
+  .timer-track > div.low{ background: var(--seal-bright); }
+  .timer-row.speedrun .timer-track{ display:none; }
+  .timer-row.speedrun #clockDisplay{ color: var(--gold-bright); font-size: 15px; }
+
   .genkou{
     position: relative;
     background:
@@ -112,7 +202,7 @@
     border-radius: 4px;
     aspect-ratio: 1 / 1;
     max-width: 260px;
-    margin: 0 auto 22px;
+    margin: 0 auto 26px;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -127,24 +217,35 @@
   }
   .peek-btn{
     position:absolute;
-    top: -12px; right: -12px;
-    width: 30px; height:30px;
+    top: -18px; right: -18px;
+    width: 44px; height: 44px;
     border-radius: 50%;
-    background: var(--seal);
+    background: radial-gradient(circle at 32% 28%, var(--seal-bright), var(--seal) 65%);
     color: var(--paper);
-    border: 1px solid rgba(236,229,211,0.3);
-    font-family:'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight:600;
+    border: 2px solid rgba(236,229,211,0.35);
+    font-family:'Shippori Mincho', serif;
+    font-size: 20px;
+    font-weight:700;
     cursor:pointer;
     display:flex; align-items:center; justify-content:center;
-    box-shadow: 0 6px 16px -4px rgba(0,0,0,0.6);
-    transition: background 0.15s ease, transform 0.1s ease;
+    box-shadow:
+      0 10px 22px -6px rgba(0,0,0,0.65),
+      0 0 0 3px rgba(20,18,15,0.9),
+      0 0 0 4px rgba(185,146,79,0.35),
+      inset 0 1px 1px rgba(255,255,255,0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
     z-index: 2;
   }
-  .peek-btn:hover{ background: var(--seal-bright); }
-  .peek-btn:active{ transform: scale(0.92); }
-  .peek-btn:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
+  .peek-btn:hover{
+    transform: scale(1.08) rotate(-4deg);
+    box-shadow:
+      0 12px 26px -6px rgba(0,0,0,0.7),
+      0 0 0 3px rgba(20,18,15,0.9),
+      0 0 0 5px rgba(212,172,104,0.55),
+      inset 0 1px 1px rgba(255,255,255,0.3);
+  }
+  .peek-btn:active{ transform: scale(0.94); }
+  .peek-btn:focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
 
   .prompt{
     font-family:'Shippori Mincho', serif;
@@ -168,7 +269,7 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--paper-dim);
-    margin: -12px 0 18px;
+    margin: -14px 0 18px;
     min-height: 14px;
   }
   .peek-label .hint-kanji{
@@ -177,6 +278,14 @@
     font-size: 13px;
     letter-spacing: normal;
     text-transform: none;
+  }
+  .peek-label kbd{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 9px;
+    border: 1px solid rgba(236,229,211,0.3);
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-left: 4px;
   }
 
   .progress{
@@ -192,7 +301,7 @@
   }
   .track > div{ height:100%; background: var(--seal-bright); transition: width 0.25s ease; }
 
-  form{ display:flex; gap: 8px; margin-bottom: 12px; }
+  .answer-row{ display:flex; gap: 8px; margin-bottom: 12px; }
   input[type=text]{
     flex:1;
     background: rgba(236,229,211,0.05);
@@ -211,7 +320,7 @@
   input.correct{ border-color: var(--ok); }
   input.wrong{ border-color: var(--bad); }
 
-  button[type=submit]{
+  #confirmBtn{
     font-family:'JetBrains Mono', monospace;
     font-size: 13px;
     letter-spacing: 0.04em;
@@ -223,8 +332,8 @@
     cursor: pointer;
     transition: background 0.15s ease, transform 0.1s ease;
   }
-  button[type=submit]:hover{ background: var(--seal-bright); }
-  button[type=submit]:active{ transform: scale(0.97); }
+  #confirmBtn:hover{ background: var(--seal-bright); }
+  #confirmBtn:active{ transform: scale(0.97); }
   button:focus-visible{ outline: 2px solid var(--gold); outline-offset: 2px; }
 
   .feedback{
@@ -254,149 +363,89 @@
   }
   .ghost-btn:hover{ border-color: var(--gold); color: var(--paper); }
 
-  .done{ text-align:center; padding: 20px 0; }
-  .done .big{ font-family:'Shippori Mincho', serif; font-size: 40px; color: var(--gold); margin-bottom: 6px; }
-  .done .sub{ font-family:'JetBrains Mono', monospace; font-size: 11px; color: var(--paper-dim); margin-bottom: 18px; line-height:1.5; }
-  .review-title{
+  /* ---------- RESULTS ---------- */
+  .results{ text-align:center; }
+  .results .big{ font-family:'Shippori Mincho', serif; font-size: 36px; color: var(--gold); margin-bottom: 4px; }
+  .results .sub{ font-family:'JetBrains Mono', monospace; font-size: 11px; color: var(--paper-dim); margin-bottom: 20px; line-height:1.5; }
+  .result-section{ text-align:left; margin-bottom: 16px; }
+  .result-title{
+    display:flex; align-items:center; gap:6px;
     font-family:'JetBrains Mono', monospace;
     font-size: 10px;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--paper-dim);
-    text-align:left;
     margin-bottom: 8px;
   }
-  .review-list{
-    list-style:none;
-    margin:0; padding:0;
-    text-align:left;
+  .result-title .dot{ width:7px; height:7px; border-radius:50%; }
+  .dot.ok{ background: var(--ok); }
+  .dot.wrong{ background: var(--gold); }
+  .dot.forgotten{ background: var(--seal-bright); }
+  .chip-row{ display:flex; flex-wrap:wrap; gap:6px; }
+  .chip{
+    font-family:'Shippori Mincho', serif;
+    font-size: 14px;
+    background: rgba(236,229,211,0.05);
+    border: 1px solid rgba(236,229,211,0.15);
+    border-radius: 4px;
+    padding: 5px 9px;
+  }
+  .chip small{
+    font-family:'Zen Kaku Gothic New', sans-serif;
+    font-size: 11px;
+    color: var(--paper-dim);
+    margin-left: 3px;
+  }
+  .result-empty{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--paper-dim);
+  }
+  .speed-list{
+    list-style:none; margin:0; padding:0; text-align:left;
     border: 1px solid rgba(236,229,211,0.15);
     border-radius: 4px;
     overflow:hidden;
   }
-  .review-list li{
+  .speed-list li{
     display:flex; justify-content:space-between; align-items:baseline;
     padding: 8px 12px;
     border-bottom: 1px solid rgba(236,229,211,0.08);
     font-size: 13px;
   }
-  .review-list li:last-child{ border-bottom:none; }
-  .review-word{
-    font-family:'Shippori Mincho', serif;
-    font-weight: 700;
-    color: var(--paper);
-  }
-  .review-reading{
-    font-family:'Zen Kaku Gothic New', sans-serif;
-    font-weight: 400;
-    font-size: 12px;
-    color: var(--paper-dim);
-    margin-left: 4px;
-  }
-  .review-counts{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--seal-bright);
-    white-space: nowrap;
-    margin-left: 10px;
-  }
-
-  /* ---------- MANAGE VIEW ---------- */
-  .manage{ display:none; }
-  .manage.active{ display:block; }
-  .quiz-view.hidden{ display:none; }
-
-  .manage-table-wrap{
-    border: 1px solid rgba(236,229,211,0.18);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 16px;
-    max-height: 360px;
-    overflow-y: auto;
-  }
-  table{ width:100%; border-collapse: collapse; }
-  thead th{
-    position: sticky; top:0;
-    background: #1a1712;
-    text-align:left;
-    font-family:'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--paper-dim);
-    padding: 9px 10px;
-    border-bottom: 1px solid rgba(236,229,211,0.18);
-  }
-  tbody td{
-    padding: 6px 10px;
-    border-bottom: 1px solid rgba(236,229,211,0.08);
-    font-size: 15px;
-  }
-  tbody tr:last-child td{ border-bottom:none; }
-  td.actions{ text-align:right; width: 36px; }
-  .cell-input{
-    width:100%;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    color: var(--paper);
-    font-family: inherit;
-    font-size: 15px;
-    padding: 5px 6px;
-  }
-  .cell-input:focus{ background: rgba(236,229,211,0.06); border-color: var(--gold); outline:none; }
-  .row-delete{
-    background:none; border:none; color: var(--paper-dim);
-    cursor:pointer; font-size: 15px; line-height:1; padding: 4px 6px;
-  }
-  .row-delete:hover{ color: var(--seal-bright); }
-
-  .add-row{
-    display:flex; gap:8px; margin-bottom: 14px;
-  }
-  .add-row input{
-    flex:1;
-    background: rgba(236,229,211,0.05);
-    border: 1px solid rgba(236,229,211,0.25);
-    border-radius: 3px;
-    color: var(--paper);
-    font-family: inherit;
-    font-size: 15px;
-    padding: 9px 10px;
-    outline:none;
-  }
-  .add-row input:focus{ border-color: var(--gold); }
-  .add-row button{
-    background: var(--seal);
-    color: var(--paper);
-    border:none;
-    border-radius: 3px;
-    padding: 0 16px;
-    font-family:'JetBrains Mono', monospace;
-    font-size: 12px;
-    cursor:pointer;
-  }
-  .add-row button:hover{ background: var(--seal-bright); }
-
-  .upload-row{
-    display:flex; align-items:center; gap:10px; margin-bottom: 18px; flex-wrap: wrap;
-  }
-  .upload-hint{
-    font-family:'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--paper-dim);
-  }
-
-  .manage-footer{
-    display:flex; justify-content:space-between; align-items:center;
-    font-family:'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--paper-dim);
-  }
-  .manage-note{ font-size: 10px; color: var(--paper-dim); margin: 0 0 14px; line-height:1.5; }
+  .speed-list li:last-child{ border-bottom:none; }
+  .speed-word{ font-family:'Shippori Mincho', serif; font-weight:700; }
+  .speed-reading{ font-family:'Zen Kaku Gothic New', sans-serif; font-size: 12px; color: var(--paper-dim); margin-left:4px; }
+  .speed-time{ font-family:'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); white-space:nowrap; margin-left:10px; }
+  .speed-time .flag{ color: var(--seal-bright); margin-left: 5px; }
+  .results-actions{ display:flex; gap:10px; margin-top: 20px; }
+  .results-actions .ghost-btn{ flex:1; text-align:center; }
 
   @media (prefers-reduced-motion: reduce){
     .prompt.enter{ animation: none; }
+    .reload-btn.spinning{ animation: none; }
+  }
+
+  /* ---------- MOBILE ---------- */
+  button, input, select{ touch-action: manipulation; }
+  input[type=text], select{ -webkit-appearance: none; }
+  #confirmBtn, .ghost-btn{ min-height: 40px; }
+
+  @media (max-width: 480px){
+    body{ padding: 20px 12px; align-items: flex-start; }
+    .wrap{ max-width: 100%; }
+    .eyebrow{ flex-wrap: wrap; row-gap: 8px; }
+    h1{ font-size: 19px; }
+    .genkou{ max-width: 220px; }
+    .prompt{ font-size: 42px; padding: 0 10px; }
+    .peek-btn{ width: 40px; height: 40px; font-size: 18px; top: -16px; right: -16px; }
+    .answer-row{ flex-wrap: wrap; }
+    input[type=text]{ flex: 1 1 100%; min-width: 0; }
+    #confirmBtn{ flex: 1 1 100%; min-height: 46px; }
+    .controls{ flex-wrap: wrap; gap: 10px; }
+    .controls .ghost-btn{ flex: 1 1 auto; text-align:center; min-height: 42px; }
+    .results-actions{ flex-direction: column; }
+    .mode-cards{ gap: 6px; }
   }
 </style>
 </head>
@@ -407,24 +456,62 @@
     <span>漢字 WRITING DRILL</span>
     <div class="right">
       <span class="stamp" id="streak">streak 0</span>
-      <button type="button" class="manage-toggle" id="manageToggle">単語管理</button>
+      <button type="button" class="reload-btn" id="reloadBtn" title="単語リストを再読込">⟳</button>
     </div>
   </div>
 
-  <!-- QUIZ VIEW -->
-  <div class="quiz-view" id="quizView">
-    <h1>この漢字、<span>書いてみよう</span></h1>
+  <h1 id="mainHeading">この漢字、<span>書いてみよう</span></h1>
 
-    <div class="rank-row">
+  <!-- START SCREEN -->
+  <div class="start-screen" id="startScreen">
+    <div class="mode-cards">
+      <div class="mode-card active" data-mode="practice">
+        <div class="icon">📝</div>
+        <div class="label">Practice</div>
+      </div>
+      <div class="mode-card" data-mode="timer">
+        <div class="icon">⏱</div>
+        <div class="label">Timer</div>
+      </div>
+      <div class="mode-card" data-mode="speedrun">
+        <div class="icon">🏁</div>
+        <div class="label">Speed Run</div>
+      </div>
+    </div>
+
+    <div class="field-row">
       <label for="rankSelect">rank</label>
       <select id="rankSelect"><option value="all">All ranks</option></select>
     </div>
+    <div class="field-row">
+      <label for="wordCountSelect">words</label>
+      <select id="wordCountSelect">
+        <option value="5">5 words</option>
+        <option value="10">10 words</option>
+        <option value="15">15 words</option>
+        <option value="20">20 words</option>
+        <option value="30">30 words</option>
+        <option value="all" selected>All available</option>
+      </select>
+    </div>
+
+    <p class="setup-note" id="setupNote">Endless practice — wrong answers and hints get requeued so you have to answer clean before they clear.</p>
+
+    <button type="button" class="start-btn" id="startBtn">▶ 開始 start</button>
+  </div>
+
+  <!-- SHARED QUIZ PLAY AREA -->
+  <div id="quizArea" style="display:none">
+    <div class="timer-row" id="timerRow" style="display:none">
+      <span id="clockDisplay">60s</span>
+      <div class="timer-track"><div id="clockBarFill" style="width:100%"></div></div>
+    </div>
 
     <div class="genkou">
-      <button type="button" class="peek-btn" id="peekBtn" title="ひらがなをのぞく">?</button>
+      <button type="button" class="peek-btn" id="peekBtn" title="ひらがなをのぞく (or press Tab)">?</button>
       <div class="prompt" id="promptDisplay">かんじ</div>
     </div>
-    <div class="peek-label" id="peekLabel">tap ? for a kanji hint</div>
+    <div class="peek-label" id="peekLabel">tap ? or <kbd>Tab</kbd> for a hiragana clue</div>
 
     <div class="progress">
       <span id="progressLabel">0 / 0</span>
@@ -432,59 +519,37 @@
     </div>
     <div class="track"><div id="progressBar" style="width:0%"></div></div>
 
-    <form id="quizForm" autocomplete="off">
+    <div class="answer-row" id="answerRow">
       <input type="text" id="answerInput" placeholder="漢字で入力" autocomplete="off" autocapitalize="off" spellcheck="false">
-      <button type="submit">確認</button>
-    </form>
+      <button type="button" id="confirmBtn">確認</button>
+    </div>
     <div class="feedback" id="feedback"></div>
 
-    <div class="controls">
-      <button type="button" class="ghost-btn" id="shuffleBtn">↻ shuffle &amp; restart</button>
+    <div class="controls" id="practiceControls" style="display:none">
+      <button type="button" class="ghost-btn" id="shuffleBtn">↻ restart</button>
       <button type="button" class="ghost-btn" id="skipBtn">skip →</button>
     </div>
-  </div>
-
-  <!-- MANAGE VIEW -->
-  <div class="manage" id="manageView">
-    <h1>単語<span>リスト</span>管理</h1>
-    <p class="manage-note">Edit kanji / hiragana / rank directly in the table. Changes save automatically to this browser. Leave rank blank if you don't need it — the rank picker on the quiz screen only shows up once at least one word has a rank set.</p>
-
-    <div class="add-row">
-      <input type="text" id="newKanji" placeholder="漢字 (e.g. 水)">
-      <input type="text" id="newHiragana" placeholder="ひらがな (e.g. みず)">
-      <input type="text" id="newRank" placeholder="ランク (optional, e.g. N5)">
-      <button type="button" id="addWordBtn">+ 追加</button>
-    </div>
-
-    <div class="upload-row">
-      <button type="button" class="ghost-btn" id="uploadBtn">⇪ CSV / Excelをアップロード</button>
-      <input type="file" id="fileUpload" accept=".csv,.xlsx,.xls" style="display:none">
-      <button type="button" class="ghost-btn" id="reloadBaseBtn">⟳ reload repo CSV</button>
-      <span class="upload-hint">columns: 漢字, ひらがな, ランク (rank optional, header row fine)</span>
-    </div>
-
-    <div class="manage-table-wrap">
-      <table>
-        <thead>
-          <tr><th>漢字</th><th>ひらがな</th><th>ランク</th><th></th></tr>
-        </thead>
-        <tbody id="wordTableBody"></tbody>
-      </table>
-    </div>
-
-    <div class="manage-footer">
-      <span id="wordCount">0 words</span>
-      <button type="button" class="ghost-btn" id="resetWordsBtn">reset to default list</button>
+    <div class="controls" id="raceControls" style="display:none">
+      <button type="button" class="ghost-btn" id="giveUpBtn" style="flex:1; text-align:center;">✕ give up on this word</button>
     </div>
   </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="resultsArea" style="display:none"></div>
 </div>
 
 <script>
   // ------------------------------------------------------------------
-  // DEFAULT WORD LIST (used the first time you open the page, or after
-  // "reset to default list"). Once you edit words in the 単語管理 panel,
-  // your list is saved to this browser's localStorage automatically.
+  // Word list lives in a CSV (or Excel) file in this same repo/folder.
+  // Edit BASE_CSV_URL below to match its filename/path. Columns expected:
+  // 漢字, ひらがな, ランク (rank is optional; header row is auto-detected).
+  // This page has no editing UI — manage the word list by editing that
+  // file directly on GitHub. The ⟳ icon re-fetches it without a full
+  // page reload.
   // ------------------------------------------------------------------
+  const BASE_CSV_URL = 'words.csv';
+  const TIMER_SECONDS = 60;
+
   const DEFAULT_WORDS = [
     { kanji: "水", hiragana: "みず", rank: "N5" },
     { kanji: "火", hiragana: "ひ", rank: "N5" },
@@ -503,62 +568,66 @@
     { kanji: "仕事", hiragana: "しごと", rank: "N4" },
   ];
 
-  // Set this to your CSV's filename/path relative to this HTML file once
-  // it's hosted on GitHub Pages (e.g. 'words.csv' or 'data/words.csv').
-  const BASE_CSV_URL = 'words.csv';
-
-  const STORAGE_KEY = 'kanjiQuizWords';
+  const SETUP_NOTES = {
+    practice: 'Endless practice — wrong answers and hints get requeued so you have to answer clean before they clear.',
+    timer: 'Each word gets 60 seconds. Run out of time or use the hint and that word counts as "forgotten" — even if you get it right right after peeking.',
+    speedrun: 'Type every word as fast as you can. Mistakes and hints don\u2019t stop you, but they show up in your results and slow your time.'
+  };
 
   let words = [];
+  let appState = 'start'; // 'start' | 'playing' | 'results'
+  let mode = 'practice';  // 'practice' | 'timer' | 'speedrun'
+  let currentRankFilter = 'all';
+
+  // practice-mode state
   let queue = [];
   let sessionTotal = 0;
   let correctCount = 0;
   let streak = 0;
-  let currentRankFilter = 'all';
-  let stats = {}; // key -> { kanji, hiragana, wrongCount, hintCount }
+  let stats = {};
+
+  // timer-mode state
+  let timerWords = [];
+  let timerIndex = 0;
+  let timerInterval = null;
+  let timeLeft = TIMER_SECONDS;
+
+  // speedrun-mode state
+  let speedWords = [];
+  let speedIndex = 0;
+  let speedRoundStart = 0;
+  let speedWordStart = 0;
+  let speedClockInterval = null;
 
   const kanjiPromptEl = document.getElementById('promptDisplay');
+  const mainHeading = document.getElementById('mainHeading');
+  const startScreen = document.getElementById('startScreen');
+  const modeCards = document.querySelectorAll('.mode-card');
+  const setupNoteEl = document.getElementById('setupNote');
   const rankSelect = document.getElementById('rankSelect');
+  const wordCountSelect = document.getElementById('wordCountSelect');
+  const startBtn = document.getElementById('startBtn');
   const peekBtn = document.getElementById('peekBtn');
   const peekLabelEl = document.getElementById('peekLabel');
   const inputEl = document.getElementById('answerInput');
-  const formEl = document.getElementById('quizForm');
+  const answerRowEl = document.getElementById('answerRow');
   const feedbackEl = document.getElementById('feedback');
   const progressLabel = document.getElementById('progressLabel');
   const scoreLabel = document.getElementById('scoreLabel');
   const progressBar = document.getElementById('progressBar');
   const streakEl = document.getElementById('streak');
   const wrap = document.querySelector('.wrap');
-  const quizView = document.getElementById('quizView');
-  const manageView = document.getElementById('manageView');
-  const manageToggle = document.getElementById('manageToggle');
-  const wordTableBody = document.getElementById('wordTableBody');
-  const wordCountEl = document.getElementById('wordCount');
-  const newKanjiInput = document.getElementById('newKanji');
-  const newHiraganaInput = document.getElementById('newHiragana');
-  const newRankInput = document.getElementById('newRank');
+  const reloadBtn = document.getElementById('reloadBtn');
+  const quizArea = document.getElementById('quizArea');
+  const resultsArea = document.getElementById('resultsArea');
+  const practiceControls = document.getElementById('practiceControls');
+  const raceControls = document.getElementById('raceControls');
+  const giveUpBtn = document.getElementById('giveUpBtn');
+  const timerRow = document.getElementById('timerRow');
+  const clockDisplay = document.getElementById('clockDisplay');
+  const clockBarFill = document.getElementById('clockBarFill');
 
-  // ---------- persistence ----------
-  function loadWords(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(raw){
-        const parsed = JSON.parse(raw);
-        if(Array.isArray(parsed) && parsed.length){
-          return parsed;
-        }
-      }
-    }catch(e){ /* fall through to defaults */ }
-    return DEFAULT_WORDS.slice();
-  }
-
-  function saveWords(){
-    try{
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
-    }catch(e){ /* storage unavailable, ignore */ }
-  }
-
-  // ---------- shuffle ----------
+  // ---------- shuffle / helpers ----------
   function shuffle(arr){
     const a = arr.slice();
     for(let i = a.length - 1; i > 0; i--){
@@ -567,6 +636,20 @@
     }
     return a;
   }
+  function wordKey(w){ return w.kanji + '|' + w.hiragana; }
+  function autoSizePrompt(text){
+    let size = 52;
+    if(text.length > 3) size = 42;
+    if(text.length > 5) size = 34;
+    if(text.length > 7) size = 27;
+    kanjiPromptEl.style.fontSize = size + 'px';
+  }
+  function formatSeconds(ms){
+    const totalSec = ms / 1000;
+    const m = Math.floor(totalSec / 60);
+    const s = (totalSec - m * 60).toFixed(1);
+    return m > 0 ? `${m}:${s.padStart(4, '0')}` : `${s}s`;
+  }
 
   // ---------- rank filter ----------
   function getRanks(){
@@ -574,7 +657,6 @@
     words.forEach(w => { if(w.rank) set.add(w.rank); });
     return Array.from(set).sort();
   }
-
   function populateRankSelect(){
     const ranks = getRanks();
     const prev = rankSelect.value || currentRankFilter;
@@ -583,37 +665,85 @@
     rankSelect.value = ranks.includes(prev) ? prev : 'all';
     currentRankFilter = rankSelect.value;
   }
-
   function getFilteredWords(){
     if(currentRankFilter === 'all') return words;
     return words.filter(w => (w.rank || '') === currentRankFilter);
   }
+  function getWordPool(){
+    const pool = getFilteredWords();
+    const n = wordCountSelect.value === 'all' ? pool.length : Math.min(parseInt(wordCountSelect.value, 10), pool.length);
+    return shuffle(pool).slice(0, n);
+  }
+  rankSelect.addEventListener('change', function(){ currentRankFilter = rankSelect.value; });
 
-  rankSelect.addEventListener('change', function(){
-    currentRankFilter = rankSelect.value;
-    startDeck();
+  // ---------- start screen / mode switching ----------
+  modeCards.forEach(card => {
+    card.addEventListener('click', () => {
+      modeCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      mode = card.dataset.mode;
+      setupNoteEl.textContent = SETUP_NOTES[mode];
+    });
   });
 
-  function wordKey(w){ return w.kanji + '|' + w.hiragana; }
+  function goToStart(){
+    appState = 'start';
+    clearInterval(timerInterval);
+    clearInterval(speedClockInterval);
+    mainHeading.innerHTML = 'この漢字、<span>書いてみよう</span>';
+    startScreen.style.display = 'block';
+    quizArea.style.display = 'none';
+    resultsArea.style.display = 'none';
+  }
 
-  // ---------- quiz logic ----------
-  function startDeck(){
-    const pool = getFilteredWords();
+  function goToPlaying(){
+    appState = 'playing';
+    startScreen.style.display = 'none';
+    quizArea.style.display = 'block';
+    resultsArea.style.display = 'none';
+    practiceControls.style.display = mode === 'practice' ? 'flex' : 'none';
+    raceControls.style.display = (mode === 'timer' || mode === 'speedrun') ? 'flex' : 'none';
+    giveUpBtn.textContent = mode === 'timer' ? '✕ give up on this word' : '✕ show answer & skip';
+    timerRow.style.display = (mode === 'timer' || mode === 'speedrun') ? 'flex' : 'none';
+    timerRow.classList.toggle('speedrun', mode === 'speedrun');
+  }
+
+  function goToResults(){
+    appState = 'results';
+    clearInterval(timerInterval);
+    clearInterval(speedClockInterval);
+    quizArea.style.display = 'none';
+    resultsArea.style.display = 'block';
+  }
+
+  startBtn.addEventListener('click', function(){
+    const pool = getWordPool();
     if(pool.length === 0){
-      queue = [];
-      kanjiPromptEl.textContent = words.length === 0 ? '単語なし' : '該当なし';
-      feedbackEl.className = 'feedback bad';
-      feedbackEl.textContent = words.length === 0
-        ? 'Add words in 単語管理 first.'
-        : 'No words in this rank yet.';
-      formEl.style.display = 'none';
-      document.getElementById('skipBtn').style.display = 'none';
-      progressLabel.textContent = '0 / 0';
-      scoreLabel.textContent = '0 correct';
-      progressBar.style.width = '0%';
+      alert('No words available for that rank yet.');
       return;
     }
-    // clone so per-session retry flags don't touch the master word list
+    goToPlaying();
+    if(mode === 'practice') startPractice(pool);
+    else if(mode === 'timer') startTimerRound(pool);
+    else startSpeedRun(pool);
+  });
+
+  reloadBtn.addEventListener('click', async function(){
+    reloadBtn.classList.add('spinning');
+    const fresh = await loadWordsFromRepo();
+    reloadBtn.classList.remove('spinning');
+    if(!fresh){
+      alert(`Could not load "${BASE_CSV_URL}" (needs to be hosted via GitHub Pages, not opened as a local file).`);
+      return;
+    }
+    words = fresh;
+    populateRankSelect();
+  });
+
+  // =========================================================
+  // PRACTICE MODE
+  // =========================================================
+  function startPractice(pool){
     queue = shuffle(pool).map(w => ({ kanji: w.kanji, hiragana: w.hiragana, rank: w.rank, needsRetry: false }));
     sessionTotal = queue.length;
     stats = {};
@@ -623,95 +753,65 @@
     feedbackEl.textContent = '';
     feedbackEl.className = 'feedback';
     streakEl.textContent = 'streak 0';
-    formEl.style.display = 'flex';
-    document.getElementById('skipBtn').style.display = 'inline-block';
-    clearDoneBlock();
-    renderCard();
+    renderPracticeCard();
   }
 
-  function renderCard(){
-    if(queue.length === 0){
-      renderDone();
-      return;
-    }
+  function renderPracticeCard(){
     const word = queue[0];
     kanjiPromptEl.textContent = word.kanji;
     kanjiPromptEl.classList.remove('enter');
     void kanjiPromptEl.offsetWidth;
     kanjiPromptEl.classList.add('enter');
     autoSizePrompt(word.kanji);
-    peekLabelEl.innerHTML = 'tap ? for a hiragana clue';
+    peekLabelEl.innerHTML = 'tap ? or <kbd>Tab</kbd> for a hiragana clue';
     inputEl.value = '';
     inputEl.classList.remove('correct', 'wrong');
     const cleared = sessionTotal - queue.length;
     progressLabel.textContent = `${cleared} / ${sessionTotal}`;
     scoreLabel.textContent = `${correctCount} correct`;
     progressBar.style.width = `${(cleared / sessionTotal) * 100}%`;
-    formEl.style.display = 'flex';
     inputEl.focus();
   }
 
-  function autoSizePrompt(text){
-    // shrink font a bit for longer hiragana strings so they fit the card
-    let size = 52;
-    if(text.length > 3) size = 42;
-    if(text.length > 5) size = 34;
-    if(text.length > 7) size = 27;
-    kanjiPromptEl.style.fontSize = size + 'px';
-  }
-
-  function renderDone(){
-    formEl.style.display = 'none';
-    document.getElementById('skipBtn').style.display = 'none';
-    progressBar.style.width = '100%';
-    progressLabel.textContent = `${sessionTotal} / ${sessionTotal}`;
-    scoreLabel.textContent = `${correctCount} correct`;
-    feedbackEl.className = 'feedback';
-    feedbackEl.innerHTML = '';
-
+  function renderPracticeResults(){
     const corrections = Object.values(stats)
       .filter(s => s.wrongCount > 0 || s.hintCount > 0)
       .sort((a, b) => (b.wrongCount + b.hintCount) - (a.wrongCount + a.hintCount));
     const perfectCount = sessionTotal - corrections.length;
 
-    const doneBlock = document.createElement('div');
-    doneBlock.className = 'done';
     let listHtml = '';
     if(corrections.length){
       listHtml = `
-        <div class="review-title">needed corrections</div>
-        <ul class="review-list">
-          ${corrections.map(s => `
-            <li>
-              <span class="review-word">${s.kanji}<span class="review-reading">（${s.hiragana}）</span></span>
-              <span class="review-counts">
-                ${s.wrongCount ? `${s.wrongCount}回間違い` : ''}${s.wrongCount && s.hintCount ? ' / ' : ''}${s.hintCount ? `hint ×${s.hintCount}` : ''}
-              </span>
-            </li>`).join('')}
-        </ul>`;
+        <div class="result-section">
+          <div class="result-title"><span class="dot forgotten"></span>needed corrections</div>
+          <ul class="speed-list">
+            ${corrections.map(s => `
+              <li>
+                <span class="speed-word">${s.kanji}<span class="speed-reading">（${s.hiragana}）</span></span>
+                <span class="speed-time">
+                  ${s.wrongCount ? `${s.wrongCount}回間違い` : ''}${s.wrongCount && s.hintCount ? ' / ' : ''}${s.hintCount ? `hint ×${s.hintCount}` : ''}
+                </span>
+              </li>`).join('')}
+          </ul>
+        </div>`;
     } else {
-      listHtml = `<div class="review-title">全問ノーミス — perfect run!</div>`;
+      listHtml = `<div class="result-title" style="justify-content:center;">全問ノーミス — perfect run!</div>`;
     }
-    doneBlock.innerHTML = `
+
+    resultsArea.innerHTML = `
       <div class="big">${correctCount} / ${sessionTotal}</div>
       <div class="sub">FINISHED — ${perfectCount}/${sessionTotal} words answered clean, no hint, first try</div>
       ${listHtml}
+      <div class="results-actions">
+        <button type="button" class="ghost-btn" id="againBtn">↻ play again</button>
+        <button type="button" class="ghost-btn" id="backBtn">← change settings</button>
+      </div>
     `;
-    kanjiPromptEl.textContent = '終';
-    kanjiPromptEl.style.fontSize = '52px';
-    peekLabelEl.textContent = '';
-    wrap.querySelector('.genkou').after(doneBlock);
+    document.getElementById('againBtn').addEventListener('click', () => { goToPlaying(); startPractice(getWordPool()); });
+    document.getElementById('backBtn').addEventListener('click', goToStart);
   }
 
-  function clearDoneBlock(){
-    const el = document.querySelector('.done');
-    if(el) el.remove();
-  }
-
-  formEl.addEventListener('submit', function(e){
-    e.preventDefault();
-    if(isComposing) return;
-    if(queue.length === 0) return;
+  function handlePracticeSubmit(){
     const word = queue[0];
     const key = wordKey(word);
     const userAnswer = inputEl.value.trim();
@@ -719,8 +819,6 @@
 
     if(userAnswer === word.kanji){
       if(word.needsRetry){
-        // got it right, but they needed a hint or missed it earlier this
-        // round — keep it in rotation for one more clean pass
         word.needsRetry = false;
         queue.shift();
         const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
@@ -728,7 +826,7 @@
         inputEl.classList.add('correct');
         feedbackEl.className = 'feedback ok';
         feedbackEl.textContent = `正解 — もう一度、ノーヒントで確認します`;
-        setTimeout(() => { renderCard(); }, 650);
+        setTimeout(() => { advancePractice(); }, 650);
       } else {
         correctCount++;
         streak++;
@@ -737,7 +835,7 @@
         feedbackEl.className = 'feedback ok';
         feedbackEl.textContent = `正解 — ${word.hiragana} は「${word.kanji}」`;
         queue.shift();
-        setTimeout(() => { renderCard(); }, 550);
+        setTimeout(() => { advancePractice(); }, 550);
       }
     } else {
       streak = 0;
@@ -750,30 +848,17 @@
       queue.shift();
       const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
       queue.splice(insertAt, 0, word);
-      setTimeout(() => { renderCard(); }, 1300);
+      setTimeout(() => { advancePractice(); }, 1300);
     }
-  });
+  }
 
-  peekBtn.addEventListener('click', function(){
-    if(queue.length === 0) return;
-    const word = queue[0];
-    const key = wordKey(word);
-    word.needsRetry = true;
-    stats[key].hintCount++;
-    peekLabelEl.innerHTML = `ヒント: <span class="hint-kanji">${word.hiragana}</span>`;
-  });
-
-  let isComposing = false;
-  inputEl.addEventListener('compositionstart', () => { isComposing = true; });
-  inputEl.addEventListener('compositionend', () => { isComposing = false; });
-  inputEl.addEventListener('keydown', function(e){
-    if(e.key === 'Enter' && (e.isComposing || e.keyCode === 229)){
-      e.preventDefault();
-    }
-  });
+  function advancePractice(){
+    if(queue.length === 0){ goToResults(); renderPracticeResults(); return; }
+    renderPracticeCard();
+  }
 
   document.getElementById('skipBtn').addEventListener('click', function(){
-    if(queue.length === 0) return;
+    if(mode !== 'practice' || appState !== 'playing') return;
     const word = queue[0];
     word.needsRetry = true;
     streak = 0;
@@ -783,106 +868,317 @@
     queue.shift();
     const insertAt = Math.min(queue.length, 2 + Math.floor(Math.random() * 3));
     queue.splice(insertAt, 0, word);
-    renderCard();
+    advancePractice();
   });
 
   document.getElementById('shuffleBtn').addEventListener('click', function(){
-    startDeck();
+    if(mode === 'practice' && appState === 'playing') startPractice(getWordPool());
   });
 
-  // ---------- manage view ----------
-  function renderTable(){
-    wordTableBody.innerHTML = '';
-    words.forEach((word, i) => {
-      const tr = document.createElement('tr');
-
-      const kanjiTd = document.createElement('td');
-      const kanjiInput = document.createElement('input');
-      kanjiInput.className = 'cell-input';
-      kanjiInput.value = word.kanji;
-      kanjiInput.addEventListener('change', () => {
-        words[i].kanji = kanjiInput.value.trim();
-        saveWords();
-      });
-      kanjiTd.appendChild(kanjiInput);
-
-      const hiraganaTd = document.createElement('td');
-      const hiraganaInput = document.createElement('input');
-      hiraganaInput.className = 'cell-input';
-      hiraganaInput.value = word.hiragana;
-      hiraganaInput.addEventListener('change', () => {
-        words[i].hiragana = hiraganaInput.value.trim();
-        saveWords();
-      });
-      hiraganaTd.appendChild(hiraganaInput);
-
-      const rankTd = document.createElement('td');
-      const rankInput = document.createElement('input');
-      rankInput.className = 'cell-input';
-      rankInput.value = word.rank || '';
-      rankInput.placeholder = '—';
-      rankInput.addEventListener('change', () => {
-        words[i].rank = rankInput.value.trim();
-        saveWords();
-        populateRankSelect();
-      });
-      rankTd.appendChild(rankInput);
-
-      const actionTd = document.createElement('td');
-      actionTd.className = 'actions';
-      const delBtn = document.createElement('button');
-      delBtn.className = 'row-delete';
-      delBtn.textContent = '×';
-      delBtn.title = 'delete word';
-      delBtn.addEventListener('click', () => {
-        words.splice(i, 1);
-        saveWords();
-        renderTable();
-        populateRankSelect();
-      });
-      actionTd.appendChild(delBtn);
-
-      tr.appendChild(kanjiTd);
-      tr.appendChild(hiraganaTd);
-      tr.appendChild(rankTd);
-      tr.appendChild(actionTd);
-      wordTableBody.appendChild(tr);
-    });
-    wordCountEl.textContent = `${words.length} word${words.length === 1 ? '' : 's'}`;
+  // =========================================================
+  // TIMER MODE
+  // =========================================================
+  function startTimerRound(pool){
+    timerWords = shuffle(pool).map(w => ({
+      kanji: w.kanji, hiragana: w.hiragana, rank: w.rank,
+      hintUsed: false, hadWrong: false, solved: false, timedOut: false
+    }));
+    timerIndex = 0;
+    correctCount = 0;
+    streak = 0;
+    streakEl.textContent = 'streak 0';
+    renderTimerCard();
   }
 
-  document.getElementById('addWordBtn').addEventListener('click', function(){
-    const k = newKanjiInput.value.trim();
-    const h = newHiraganaInput.value.trim();
-    const r = newRankInput.value.trim();
-    if(!k || !h) return;
-    words.push({ kanji: k, hiragana: h, rank: r });
-    saveWords();
-    renderTable();
-    populateRankSelect();
-    newKanjiInput.value = '';
-    newHiraganaInput.value = '';
-    newRankInput.value = '';
-    newKanjiInput.focus();
-  });
+  function renderTimerCard(){
+    if(timerIndex >= timerWords.length){ finishTimerRound(); return; }
+    const word = timerWords[timerIndex];
+    kanjiPromptEl.textContent = word.kanji;
+    kanjiPromptEl.classList.remove('enter');
+    void kanjiPromptEl.offsetWidth;
+    kanjiPromptEl.classList.add('enter');
+    autoSizePrompt(word.kanji);
+    peekLabelEl.innerHTML = 'tap ? or <kbd>Tab</kbd> for a hiragana clue';
+    inputEl.value = '';
+    inputEl.classList.remove('correct', 'wrong');
+    progressLabel.textContent = `${timerIndex + 1} / ${timerWords.length}`;
+    scoreLabel.textContent = `${correctCount} correct`;
+    progressBar.style.width = `${(timerIndex / timerWords.length) * 100}%`;
+    inputEl.focus();
+    startWordTimer();
+  }
 
-  [newKanjiInput, newHiraganaInput, newRankInput].forEach(el => {
-    el.addEventListener('keydown', (e) => {
-      if(e.key === 'Enter'){
-        e.preventDefault();
-        document.getElementById('addWordBtn').click();
+  function startWordTimer(){
+    clearInterval(timerInterval);
+    timeLeft = TIMER_SECONDS;
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      updateTimerDisplay();
+      if(timeLeft <= 0){
+        clearInterval(timerInterval);
+        handleTimeout();
       }
-    });
+    }, 1000);
+  }
+
+  function updateTimerDisplay(){
+    clockDisplay.textContent = `${timeLeft}s`;
+    clockBarFill.style.width = `${(timeLeft / TIMER_SECONDS) * 100}%`;
+    const low = timeLeft <= 10;
+    clockDisplay.classList.toggle('low', low);
+    clockBarFill.classList.toggle('low', low);
+  }
+
+  function handleTimeout(){
+    const word = timerWords[timerIndex];
+    if(!word.solved){ word.timedOut = true; }
+    feedbackEl.className = 'feedback bad';
+    feedbackEl.textContent = `時間切れ — 正解は「${word.kanji}」`;
+    setTimeout(() => { timerIndex++; renderTimerCard(); }, 900);
+  }
+
+  function handleTimerSubmit(){
+    const word = timerWords[timerIndex];
+    const userAnswer = inputEl.value.trim();
+    if(!userAnswer) return;
+
+    if(userAnswer === word.kanji){
+      word.solved = true;
+      clearInterval(timerInterval);
+      inputEl.classList.add('correct');
+      feedbackEl.className = 'feedback ok';
+      feedbackEl.textContent = `正解 — ${word.hiragana} は「${word.kanji}」`;
+      if(!word.hintUsed && !word.hadWrong){
+        correctCount++; streak++; streakEl.textContent = `streak ${streak}`;
+      } else {
+        streak = 0; streakEl.textContent = 'streak 0';
+      }
+      setTimeout(() => { timerIndex++; renderTimerCard(); }, 550);
+    } else {
+      word.hadWrong = true;
+      streak = 0;
+      streakEl.textContent = 'streak 0';
+      inputEl.classList.add('wrong');
+      feedbackEl.className = 'feedback bad';
+      feedbackEl.textContent = `不正解 — もう一度`;
+      inputEl.value = '';
+    }
+  }
+
+  function finishTimerRound(){
+    clearInterval(timerInterval);
+    goToResults();
+
+    const correctList = timerWords.filter(w => w.solved && !w.hintUsed && !w.hadWrong);
+    const wrongList = timerWords.filter(w => w.solved && !w.hintUsed && w.hadWrong);
+    const forgottenList = timerWords.filter(w => w.hintUsed || !w.solved);
+
+    function chips(list){
+      if(!list.length) return `<div class="result-empty">なし</div>`;
+      return `<div class="chip-row">${list.map(w => `<span class="chip">${w.kanji}<small>（${w.hiragana}）</small></span>`).join('')}</div>`;
+    }
+
+    resultsArea.innerHTML = `
+      <div class="big">${correctList.length} / ${timerWords.length}</div>
+      <div class="sub">TIME'S UP — clean correct answers out of ${timerWords.length} words</div>
+      <div class="result-section">
+        <div class="result-title"><span class="dot ok"></span>正解 correct (${correctList.length})</div>
+        ${chips(correctList)}
+      </div>
+      <div class="result-section">
+        <div class="result-title"><span class="dot wrong"></span>間違い wrong, then fixed (${wrongList.length})</div>
+        ${chips(wrongList)}
+      </div>
+      <div class="result-section">
+        <div class="result-title"><span class="dot forgotten"></span>忘れた forgotten (${forgottenList.length})</div>
+        ${chips(forgottenList)}
+      </div>
+      <div class="results-actions">
+        <button type="button" class="ghost-btn" id="againBtn">↻ play again</button>
+        <button type="button" class="ghost-btn" id="backBtn">← change settings</button>
+      </div>
+    `;
+    document.getElementById('againBtn').addEventListener('click', () => { goToPlaying(); startTimerRound(getWordPool()); });
+    document.getElementById('backBtn').addEventListener('click', goToStart);
+  }
+
+  // =========================================================
+  // SPEED RUN MODE
+  // =========================================================
+  function startSpeedRun(pool){
+    speedWords = shuffle(pool).map(w => ({
+      kanji: w.kanji, hiragana: w.hiragana, rank: w.rank,
+      hintUsed: false, wrongCount: 0, timeMs: 0, skipped: false
+    }));
+    speedIndex = 0;
+    correctCount = 0;
+    streak = 0;
+    streakEl.textContent = 'streak 0';
+    speedRoundStart = performance.now();
+    clearInterval(speedClockInterval);
+    speedClockInterval = setInterval(() => {
+      clockDisplay.textContent = formatSeconds(performance.now() - speedRoundStart);
+    }, 100);
+    renderSpeedCard();
+  }
+
+  function renderSpeedCard(){
+    if(speedIndex >= speedWords.length){ finishSpeedRun(); return; }
+    const word = speedWords[speedIndex];
+    kanjiPromptEl.textContent = word.kanji;
+    kanjiPromptEl.classList.remove('enter');
+    void kanjiPromptEl.offsetWidth;
+    kanjiPromptEl.classList.add('enter');
+    autoSizePrompt(word.kanji);
+    peekLabelEl.innerHTML = 'tap ? or <kbd>Tab</kbd> for a hiragana clue';
+    inputEl.value = '';
+    inputEl.classList.remove('correct', 'wrong');
+    progressLabel.textContent = `${speedIndex + 1} / ${speedWords.length}`;
+    scoreLabel.textContent = `${correctCount} correct`;
+    progressBar.style.width = `${(speedIndex / speedWords.length) * 100}%`;
+    inputEl.focus();
+    speedWordStart = performance.now();
+  }
+
+  function handleSpeedSubmit(){
+    const word = speedWords[speedIndex];
+    const userAnswer = inputEl.value.trim();
+    if(!userAnswer) return;
+
+    if(userAnswer === word.kanji){
+      word.timeMs = performance.now() - speedWordStart;
+      correctCount++;
+      streak++;
+      streakEl.textContent = `streak ${streak}`;
+      inputEl.classList.add('correct');
+      feedbackEl.className = 'feedback ok';
+      feedbackEl.textContent = `正解 — ${formatSeconds(word.timeMs)}`;
+      setTimeout(() => { speedIndex++; renderSpeedCard(); }, 350);
+    } else {
+      word.wrongCount++;
+      streak = 0;
+      streakEl.textContent = 'streak 0';
+      inputEl.classList.add('wrong');
+      feedbackEl.className = 'feedback bad';
+      feedbackEl.textContent = `不正解 — もう一度`;
+      inputEl.value = '';
+    }
+  }
+
+  function finishSpeedRun(){
+    clearInterval(speedClockInterval);
+    goToResults();
+
+    const totalMs = speedWords.reduce((sum, w) => sum + w.timeMs, 0);
+    const avgMs = totalMs / speedWords.length;
+    const sorted = speedWords.slice().sort((a, b) => b.timeMs - a.timeMs);
+    const cleanCount = speedWords.filter(w => !w.hintUsed && w.wrongCount === 0 && !w.skipped).length;
+
+    resultsArea.innerHTML = `
+      <div class="big">${formatSeconds(totalMs)}</div>
+      <div class="sub">FINISHED — ${speedWords.length} words, avg ${formatSeconds(avgMs)}/word, ${cleanCount} clean (no mistake/hint)</div>
+      <div class="result-section">
+        <div class="result-title">breakdown, slowest first</div>
+        <ul class="speed-list">
+          ${sorted.map(w => `
+            <li>
+              <span class="speed-word">${w.kanji}<span class="speed-reading">（${w.hiragana}）</span></span>
+              <span class="speed-time">${formatSeconds(w.timeMs)}${w.wrongCount ? `<span class="flag">×${w.wrongCount}</span>` : ''}${w.hintUsed ? `<span class="flag">hint</span>` : ''}${w.skipped ? `<span class="flag">skip</span>` : ''}</span>
+            </li>`).join('')}
+        </ul>
+      </div>
+      <div class="results-actions">
+        <button type="button" class="ghost-btn" id="againBtn">↻ play again</button>
+        <button type="button" class="ghost-btn" id="backBtn">← change settings</button>
+      </div>
+    `;
+    document.getElementById('againBtn').addEventListener('click', () => { goToPlaying(); startSpeedRun(getWordPool()); });
+    document.getElementById('backBtn').addEventListener('click', goToStart);
+  }
+
+  // =========================================================
+  // SHARED: give up (timer / speedrun), hint, input handling
+  // =========================================================
+  giveUpBtn.addEventListener('click', function(){
+    if(appState !== 'playing') return;
+    if(mode === 'timer'){
+      if(timerIndex >= timerWords.length) return;
+      clearInterval(timerInterval);
+      const word = timerWords[timerIndex];
+      if(!word.solved){ word.timedOut = true; }
+      feedbackEl.className = 'feedback bad';
+      feedbackEl.textContent = `スキップ — 正解は「${word.kanji}」`;
+      setTimeout(() => { timerIndex++; renderTimerCard(); }, 700);
+    } else if(mode === 'speedrun'){
+      if(speedIndex >= speedWords.length) return;
+      const word = speedWords[speedIndex];
+      word.timeMs = performance.now() - speedWordStart;
+      word.skipped = true;
+      feedbackEl.className = 'feedback bad';
+      feedbackEl.textContent = `スキップ — 正解は「${word.kanji}」`;
+      setTimeout(() => { speedIndex++; renderSpeedCard(); }, 700);
+    }
   });
 
-  document.getElementById('resetWordsBtn').addEventListener('click', function(){
-    words = DEFAULT_WORDS.slice();
-    saveWords();
-    renderTable();
-    populateRankSelect();
+  function triggerHint(){
+    if(appState !== 'playing') return;
+    if(mode === 'timer'){
+      if(timerIndex >= timerWords.length) return;
+      const word = timerWords[timerIndex];
+      word.hintUsed = true;
+      peekLabelEl.innerHTML = `ヒント: <span class="hint-kanji">${word.hiragana}</span>`;
+    } else if(mode === 'speedrun'){
+      if(speedIndex >= speedWords.length) return;
+      const word = speedWords[speedIndex];
+      word.hintUsed = true;
+      peekLabelEl.innerHTML = `ヒント: <span class="hint-kanji">${word.hiragana}</span>`;
+    } else {
+      if(queue.length === 0) return;
+      const word = queue[0];
+      const key = wordKey(word);
+      word.needsRetry = true;
+      stats[key].hintCount++;
+      peekLabelEl.innerHTML = `ヒント: <span class="hint-kanji">${word.hiragana}</span>`;
+    }
+  }
+  peekBtn.addEventListener('click', triggerHint);
+
+  function submitAnswer(){
+    if(isComposing) return;
+    if(appState !== 'playing') return;
+    if(mode === 'timer') handleTimerSubmit();
+    else if(mode === 'speedrun') handleSpeedSubmit();
+    else handlePracticeSubmit();
+  }
+  document.getElementById('confirmBtn').addEventListener('click', submitAnswer);
+
+  let isComposing = false;
+  inputEl.addEventListener('compositionstart', () => { isComposing = true; });
+  inputEl.addEventListener('compositionend', () => { isComposing = false; });
+  inputEl.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      if(e.isComposing || e.keyCode === 229){ e.preventDefault(); return; }
+      e.preventDefault();
+      submitAnswer();
+    } else if(e.key === 'Tab'){
+      if(appState === 'playing'){
+        e.preventDefault();
+        triggerHint();
+      }
+    }
+  });
+  // also catch Tab globally in case focus drifts off the input during play
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Tab' && appState === 'playing' && document.activeElement !== inputEl){
+      e.preventDefault();
+      triggerHint();
+    }
   });
 
-  // ---------- CSV / Excel import ----------
+  // =========================================================
+  // CSV / Excel loading (BASE_CSV_URL only — no upload UI)
+  // =========================================================
   function splitCSVLine(line){
     const result = [];
     let cur = '';
@@ -901,11 +1197,9 @@
     result.push(cur);
     return result;
   }
-
   function parseCSVText(text){
     return text.split(/\r\n|\n|\r/).filter(l => l.trim().length).map(splitCSVLine);
   }
-
   function rowsToWords(rows){
     if(!rows.length) return [];
     let kanjiIdx = 0, hiraganaIdx = 1, rankIdx = -1;
@@ -921,7 +1215,7 @@
       if(rIdx > -1) rankIdx = rIdx;
       dataRows = rows.slice(1);
     } else if(rows[0] && rows[0].length >= 3){
-      rankIdx = 2; // no header: assume column order kanji, hiragana, rank
+      rankIdx = 2;
     }
     return dataRows
       .map(r => ({
@@ -931,112 +1225,34 @@
       }))
       .filter(w => w.kanji && w.hiragana);
   }
-
-  function handleImportedWords(importedWords){
-    if(importedWords.length === 0){
-      alert('No valid rows found. Make sure the file has columns for 漢字 and ひらがな (ランク is optional).');
-      return;
-    }
-    const replace = confirm(`Found ${importedWords.length} word(s).\n\nOK = replace your current list\nCancel = add to your current list`);
-    words = replace ? importedWords : words.concat(importedWords);
-    saveWords();
-    renderTable();
-    populateRankSelect();
-  }
-
-  const uploadBtn = document.getElementById('uploadBtn');
-  const fileUpload = document.getElementById('fileUpload');
-  const reloadBaseBtn = document.getElementById('reloadBaseBtn');
-
-  uploadBtn.addEventListener('click', () => fileUpload.click());
-
-  async function tryLoadBaseCSV(){
-    try{
-      const res = await fetch(BASE_CSV_URL, { cache: 'no-store' });
-      if(!res.ok) return null;
+  async function fetchBaseWords(){
+    const res = await fetch(BASE_CSV_URL, { cache: 'no-store' });
+    if(!res.ok) return null;
+    const ext = BASE_CSV_URL.split('.').pop().toLowerCase();
+    let rows;
+    if(ext === 'xlsx' || ext === 'xls'){
+      const buf = await res.arrayBuffer();
+      const wb = XLSX.read(new Uint8Array(buf), { type: 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+    } else {
       const text = await res.text();
-      const parsed = rowsToWords(parseCSVText(text));
-      return parsed.length ? parsed : null;
-    }catch(e){
-      return null;
+      rows = parseCSVText(text);
     }
+    const parsed = rowsToWords(rows);
+    return parsed.length ? parsed : null;
   }
-
-  reloadBaseBtn.addEventListener('click', async function(){
-    reloadBaseBtn.disabled = true;
-    reloadBaseBtn.textContent = '読み込み中…';
-    const baseWords = await tryLoadBaseCSV();
-    reloadBaseBtn.disabled = false;
-    reloadBaseBtn.textContent = '⟳ reload repo CSV';
-    if(!baseWords){
-      alert(`Could not load "${BASE_CSV_URL}". Make sure that file exists next to this page in your repo, and that you're viewing this page through GitHub Pages (fetch doesn't work when opening the file directly from your computer).`);
-      return;
-    }
-    handleImportedWords(baseWords);
-  });
-
-  fileUpload.addEventListener('change', function(e){
-    const file = e.target.files[0];
-    if(!file) return;
-    const ext = file.name.split('.').pop().toLowerCase();
-
-    if(ext === 'csv'){
-      const reader = new FileReader();
-      reader.onload = (ev) => handleImportedWords(rowsToWords(parseCSVText(ev.target.result)));
-      reader.onerror = () => alert('Could not read that file.');
-      reader.readAsText(file, 'UTF-8');
-    } else if(ext === 'xlsx' || ext === 'xls'){
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        try{
-          const data = new Uint8Array(ev.target.result);
-          const wb = XLSX.read(data, { type: 'array' });
-          const sheet = wb.Sheets[wb.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-          handleImportedWords(rowsToWords(rows));
-        }catch(err){
-          alert('Could not parse that Excel file.');
-        }
-      };
-      reader.onerror = () => alert('Could not read that file.');
-      reader.readAsArrayBuffer(file);
-    } else {
-      alert('Please upload a .csv, .xlsx, or .xls file.');
-    }
-    fileUpload.value = '';
-  });
-
-  manageToggle.addEventListener('click', function(){
-    const goingToManage = !manageView.classList.contains('active');
-    if(goingToManage){
-      quizView.classList.add('hidden');
-      manageView.classList.add('active');
-      manageToggle.textContent = '← クイズに戻る';
-      renderTable();
-    } else {
-      quizView.classList.remove('hidden');
-      manageView.classList.remove('active');
-      manageToggle.textContent = '単語管理';
-      startDeck();
-    }
-  });
+  async function loadWordsFromRepo(){
+    try{ return await fetchBaseWords(); }catch(e){ return null; }
+  }
 
   // ---------- init ----------
-  function hasSavedWords(){
-    try{ return !!localStorage.getItem(STORAGE_KEY); }catch(e){ return false; }
-  }
-
   async function init(){
-    if(hasSavedWords()){
-      words = loadWords();
-    } else {
-      const baseWords = await tryLoadBaseCSV();
-      words = baseWords || DEFAULT_WORDS.slice();
-    }
+    const fresh = await loadWordsFromRepo();
+    words = fresh || DEFAULT_WORDS.slice();
     populateRankSelect();
-    startDeck();
+    goToStart();
   }
-
   init();
 </script>
 
