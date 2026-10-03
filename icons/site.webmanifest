@@ -1,0 +1,26 @@
+{
+  "name": "漢字書き取りクイズ | Kanji Writing Quiz",
+  "short_name": "Kanji Quiz",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#14120F",
+  "background_color": "#14120F",
+  "display": "standalone"
+}
